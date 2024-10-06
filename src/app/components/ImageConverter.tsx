@@ -208,6 +208,20 @@ const SortableImage: React.FC<SortableImageProps> = ({
         touchAction: 'manipulation',
     };
 
+    const [aspectRatio, setAspectRatio] = useState(image.width / image.height);
+
+    const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newWidth = parseInt(e.target.value, 10);
+        const newHeight = Math.round(newWidth / aspectRatio);
+        onResize(image.id, newWidth, newHeight);
+    };
+
+    const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newHeight = parseInt(e.target.value, 10);
+        const newWidth = Math.round(newHeight * aspectRatio);
+        onResize(image.id, newWidth, newHeight);
+    };
+
     const handleDownloadClick = () => {
         const formatSelect = document.getElementById(
             `format-select-${image.id}`
@@ -217,13 +231,11 @@ const SortableImage: React.FC<SortableImageProps> = ({
     };
 
     return (
-        <motion.div
+        <div
             ref={setNodeRef}
             style={style}
             {...attributes}
             className="p-4 bg-white rounded-lg shadow-md hover:shadow-xl flex flex-col items-center"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
         >
             <div {...listeners} style={{ cursor: 'grab', width: '100%' }}>
                 <motion.img
@@ -235,24 +247,20 @@ const SortableImage: React.FC<SortableImageProps> = ({
             </div>
             <div className="w-full mt-4">
                 <label className="block text-sm text-gray-600 mb-2">
-                    Width:
+                    너비:
                     <input
                         type="number"
                         value={image.width}
-                        onChange={(e) =>
-                            onResize(image.id, parseInt(e.target.value, 10), image.height)
-                        }
+                        onChange={handleWidthChange}
                         className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                 </label>
                 <label className="block text-sm text-gray-600 mb-2">
-                    Height:
+                    높이:
                     <input
                         type="number"
                         value={image.height}
-                        onChange={(e) =>
-                            onResize(image.id, image.width, parseInt(e.target.value, 10))
-                        }
+                        onChange={handleHeightChange}
                         className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                 </label>
@@ -288,7 +296,7 @@ const SortableImage: React.FC<SortableImageProps> = ({
                     Download
                 </motion.button>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
