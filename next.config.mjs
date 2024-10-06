@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  trailingSlash: true,
+  output: 'export',
+  siteUrl: process.env.SITE_URL || 'https://safeconvert.ludgi.ai',
+  generateRobotsTxt: true, // (optional)
+}
 
-export default nextConfig;
+export default nextConfig
