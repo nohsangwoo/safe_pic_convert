@@ -7,7 +7,8 @@ safe_pic_convert is a web application that allows users to securely convert imag
 
 서비스 링크: https://imgconv.ludgi.ai/
 
-- ludgi.ai 홍보용 평수 계산기 프로젝트
+- ludgi.ai 홍보용 이미지 변환기 프로젝트
+- 클라이언트사이드에서 사용자의 리소스를 사용하여 이미지 변환을 수행하여 사용자의 데이터를 보호합니다.
 
 # sitemap 확인
 
