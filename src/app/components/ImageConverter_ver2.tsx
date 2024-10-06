@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import { useDropzone } from 'react-dropzone';
 import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -86,9 +86,37 @@ const ImageConverter: NextPage = () => {
     };
 
     const handleDownload = (id: string, format: string) => {
-        handleFormatConversion(id, format, (blob) => {
-            saveAs(blob, `converted-image-${id}.${format}`);
-        });
+        // handleFormatConversion(id, format, (blob) => {
+        //     saveAs(blob, `converted-image-${id}.${format}`);
+        // });
+        const img = images.find((img) => img.id === id);
+        if (!img) return;
+
+        const reader = new FileReader();
+        reader.onload = (e: ProgressEvent<FileReader>) => {
+            const src = e.target?.result as string;
+            const canvas = document.createElement('canvas');
+            const image = new Image();
+            image.src = src;
+            image.onload = () => {
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                canvas.width = img.width || image.width;
+                canvas.height = img.height || image.height;
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            saveAs(blob, `converted-image.${format}`);
+                        }
+                    },
+                    `image/${format}`
+                );
+            };
+        };
+        reader.readAsDataURL(img.file);
     };
 
     const handleBulkDownload = () => {
@@ -117,21 +145,13 @@ const ImageConverter: NextPage = () => {
         accept: {
             'image/png': ['.png'],
             'image/jpeg': ['.jpeg', '.jpg'],
-            'image/bmp': ['.bmp'],
-            'image/gif': ['.gif'],
-            'image/tiff': ['.tiff'],
             'image/webp': ['.webp'],
+            'image/gif': ['.gif'],
+            'image/bmp': ['.bmp'],
+            'image/tiff': ['.tiff', '.tif'],
         },
         onDrop,
     });
-
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 10,
-            },
-        })
-    );
 
     const handleDragEnd = (event: any) => {
         const { active, over } = event;
@@ -151,7 +171,7 @@ const ImageConverter: NextPage = () => {
                 <p>Drag & drop some files here, or click to select files</p>
             </div>
             <button onClick={handleBulkDownload}>Download All as ZIP</button>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map((img) => img.id)}>
                     <div className="image-previews">
                         {images.map((img) => (
@@ -190,7 +210,6 @@ const SortableImage: React.FC<SortableImageProps> = ({
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-        touchAction: 'manipulation',
     };
 
     const handleDownloadClick = () => {
@@ -202,10 +221,8 @@ const SortableImage: React.FC<SortableImageProps> = ({
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes}>
-            <div {...listeners} style={{ cursor: 'grab' }}>
-                <img src={image.preview} alt="Preview" />
-            </div>
+        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+            <img src={image.preview} alt="Preview" />
             <div>
                 <label>
                     Width:
