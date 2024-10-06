@@ -1,7 +1,7 @@
 /** @type {import('next-sitemap').IConfig} */
 
 module.exports = {
-  siteUrl: 'https://safeconvert.ludgi.ai',
+  siteUrl: 'https://imgconv.ludgi.ai',
   generateRobotsTxt: true,
   sitemapSize: 5000,
   exclude: ['/admin/*'],

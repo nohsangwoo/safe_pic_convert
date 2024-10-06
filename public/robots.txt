@@ -7,7 +7,7 @@ User-agent: *
 Disallow: /admin
 
 # Host
-Host: https://safeconvert.ludgi.ai
+Host: https://imgconv.ludgi.ai
 
 # Sitemaps
-Sitemap: https://safeconvert.ludgi.ai/sitemap.xml
+Sitemap: https://imgconv.ludgi.ai/sitemap.xml

@@ -2,7 +2,7 @@
 const nextConfig = {
   trailingSlash: true,
   output: 'export',
-  siteUrl: process.env.SITE_URL || 'https://safeconvert.ludgi.ai',
+  siteUrl: process.env.SITE_URL || 'https://imgconv.ludgi.ai',
   generateRobotsTxt: true, // (optional)
 }
 

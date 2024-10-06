@@ -10,6 +10,8 @@ import { motion } from 'framer-motion';
 import 'tailwindcss/tailwind.css';
 import { useInView } from 'react-intersection-observer';
 import DisplayLudgi from './DisplayLudgi';
+import ProjectIntro from './ProjectIntro';
+import { Toaster, toast } from 'react-hot-toast';
 
 interface ImageFile {
     id: string;
@@ -24,7 +26,29 @@ const ImageConverter: NextPage = () => {
     const idCounter = useRef(0);
 
     const onDrop = (acceptedFiles: File[]) => {
-        const newImages = acceptedFiles.map((file) => {
+        const supportedFormats = ['image/webp', 'image/png', 'image/jpeg', 'image/bmp', 'image/gif', 'image/tiff'];
+
+        const validFiles = acceptedFiles.filter(file => supportedFormats.includes(file.type));
+        const invalidFiles = acceptedFiles.filter(file => !supportedFormats.includes(file.type));
+
+        if (invalidFiles.length > 0) {
+            toast.error(
+                "Please upload only image files (WebP, PNG, JPEG, BMP, GIF, or TIFF).",
+                {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#333',
+                        color: '#fff',
+                    },
+                    iconTheme: {
+                        primary: '#ff4b4b',
+                        secondary: '#fff',
+                    },
+                }
+            );
+        }
+
+        const newImages = validFiles.map((file) => {
             const id = (idCounter.current++).toString();
             const preview = URL.createObjectURL(file);
             const img = new Image();
@@ -154,6 +178,8 @@ const ImageConverter: NextPage = () => {
 
     return (
         <div className="min-h-screen p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 flex flex-col items-center">
+            <Toaster position="top-center" reverseOrder={false} />
+            <ProjectIntro />
             <div {...getRootProps()} className="w-full md:w-2/3 lg:w-1/2">
                 <motion.div
                     className="p-8 mb-4 border-2 border-dashed border-gray-400 rounded-lg bg-gray-800 shadow-lg cursor-pointer"
@@ -161,17 +187,19 @@ const ImageConverter: NextPage = () => {
                     whileTap={{ scale: 0.98 }}
                 >
                     <input {...getInputProps()} />
-                    <p className="text-center text-gray-300">Drag and drop files here, or click to select files</p>
+                    <p className="text-center text-gray-300">Drag and drop image files here, or click to select image files</p>
                 </motion.div>
             </div>
-            <div ref={ref} className="w-full sticky top-0 z-10 bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg py-4">
-                <motion.button
-                    onClick={handleBulkDownload}
-                    className="mx-auto block px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-all duration-300"
-                >
-                    Download All Images as ZIP
-                </motion.button>
-            </div>
+            {images.length > 0 && (
+                <div ref={ref} className="w-full sticky top-0 z-10 bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg py-4">
+                    <motion.button
+                        onClick={handleBulkDownload}
+                        className="mx-auto block px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-all duration-300"
+                    >
+                        Download All as ZIP
+                    </motion.button>
+                </div>
+            )}
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map((img) => img.id)}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full md:w-2/3 lg:w-1/2">
