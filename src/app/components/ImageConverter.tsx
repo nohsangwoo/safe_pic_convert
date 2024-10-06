@@ -8,6 +8,8 @@ import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import 'tailwindcss/tailwind.css';
+import { useInView } from 'react-intersection-observer';
+import DisplayLudgi from './DisplayLudgi';
 
 interface ImageFile {
     id: string;
@@ -146,26 +148,30 @@ const ImageConverter: NextPage = () => {
         }
     };
 
+    const [ref, inView] = useInView({
+        threshold: 0,
+    });
+
     return (
-        <div className="min-h-screen p-6 bg-gray-100 flex flex-col items-center">
+        <div className="min-h-screen p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 flex flex-col items-center">
             <div {...getRootProps()} className="w-full md:w-2/3 lg:w-1/2">
                 <motion.div
-                    className="p-8 mb-4 border-2 border-dashed border-gray-400 rounded-lg bg-white shadow-md cursor-pointer"
-                    whileHover={{ scale: 1.02 }}
+                    className="p-8 mb-4 border-2 border-dashed border-gray-400 rounded-lg bg-gray-800 shadow-lg cursor-pointer"
+                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(59, 130, 246, 0.5)" }}
                     whileTap={{ scale: 0.98 }}
                 >
                     <input {...getInputProps()} />
-                    <p className="text-center text-gray-500">Drag & drop some files here, or click to select files</p>
+                    <p className="text-center text-gray-300">Drag and drop files here, or click to select files</p>
                 </motion.div>
             </div>
-            <motion.button
-                onClick={handleBulkDownload}
-                className="mb-6 px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-            >
-                Download All as ZIP
-            </motion.button>
+            <div ref={ref} className="w-full sticky top-0 z-10 bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg py-4">
+                <motion.button
+                    onClick={handleBulkDownload}
+                    className="mx-auto block px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-all duration-300"
+                >
+                    Download All Images as ZIP
+                </motion.button>
+            </div>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map((img) => img.id)}>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full md:w-2/3 lg:w-1/2">
@@ -181,6 +187,7 @@ const ImageConverter: NextPage = () => {
                     </div>
                 </SortableContext>
             </DndContext>
+            <DisplayLudgi />
         </div>
     );
 };
@@ -231,53 +238,54 @@ const SortableImage: React.FC<SortableImageProps> = ({
     };
 
     return (
-        <div
+        <motion.div
             ref={setNodeRef}
             style={style}
             {...attributes}
-            className="p-4 bg-white rounded-lg shadow-md hover:shadow-xl flex flex-col items-center"
+            className="p-4 bg-gray-800 rounded-lg shadow-md hover:shadow-xl flex flex-col items-center"
         >
             <div {...listeners} style={{ cursor: 'grab', width: '100%' }}>
                 <motion.img
                     src={image.preview}
                     alt="Preview"
                     className="rounded-lg w-full h-auto"
-                    whileHover={{ scale: 1.02 }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
             </div>
-            <div className="w-full mt-4">
-                <label className="block text-sm text-gray-600 mb-2">
-                    너비:
+            <div className="w-full mt-4 space-y-3">
+                <label className="block text-sm text-gray-300">
+                    Width:
                     <input
                         type="number"
                         value={image.width}
                         onChange={handleWidthChange}
-                        className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-100"
                     />
                 </label>
-                <label className="block text-sm text-gray-600 mb-2">
-                    높이:
+                <label className="block text-sm text-gray-300">
+                    Height:
                     <input
                         type="number"
                         value={image.height}
                         onChange={handleHeightChange}
-                        className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-100"
                     />
                 </label>
                 <motion.button
                     onClick={() => onDelete(image.id)}
-                    className="w-full mb-2 px-4 py-2 bg-red-500 text-white rounded-md shadow hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-75"
+                    className="w-full px-4 py-2 bg-red-500 text-white rounded-md shadow hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-75"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                 >
                     Delete
                 </motion.button>
-                <label className="block text-sm text-gray-600 mb-2">
+                <label className="block text-sm text-gray-300">
                     Convert to:
                     <select
                         id={`format-select-${image.id}`}
                         defaultValue="webp"
-                        className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full mt-1 p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-100"
                     >
                         <option value="webp">WebP</option>
                         <option value="png">PNG</option>
@@ -296,7 +304,7 @@ const SortableImage: React.FC<SortableImageProps> = ({
                     Download
                 </motion.button>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

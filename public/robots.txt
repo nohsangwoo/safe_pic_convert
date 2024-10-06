@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /admin
+
+# Host
+Host: https://safeconvert.ludgi.ai
+
+# Sitemaps
+Sitemap: https://safeconvert.ludgi.ai/sitemap.xml
