@@ -6,6 +6,8 @@ import JSZip from 'jszip';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { motion } from 'framer-motion';
+import 'tailwindcss/tailwind.css';
 
 interface ImageFile {
     id: string;
@@ -117,10 +119,10 @@ const ImageConverter: NextPage = () => {
         accept: {
             'image/png': ['.png'],
             'image/jpeg': ['.jpeg', '.jpg'],
-            'image/bmp': ['.bmp'],
-            'image/gif': ['.gif'],
-            'image/tiff': ['.tiff'],
             'image/webp': ['.webp'],
+            'image/gif': ['.gif'],
+            'image/bmp': ['.bmp'],
+            'image/tiff': ['.tiff', '.tif'],
         },
         onDrop,
     });
@@ -145,15 +147,28 @@ const ImageConverter: NextPage = () => {
     };
 
     return (
-        <div>
-            <div {...getRootProps()}>
-                <input {...getInputProps()} />
-                <p>Drag & drop some files here, or click to select files</p>
+        <div className="min-h-screen p-6 bg-gray-100 flex flex-col items-center">
+            <div {...getRootProps()} className="w-full md:w-2/3 lg:w-1/2">
+                <motion.div
+                    className="p-8 mb-4 border-2 border-dashed border-gray-400 rounded-lg bg-white shadow-md cursor-pointer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                >
+                    <input {...getInputProps()} />
+                    <p className="text-center text-gray-500">Drag & drop some files here, or click to select files</p>
+                </motion.div>
             </div>
-            <button onClick={handleBulkDownload}>Download All as ZIP</button>
+            <motion.button
+                onClick={handleBulkDownload}
+                className="mb-6 px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+            >
+                Download All as ZIP
+            </motion.button>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                 <SortableContext items={images.map((img) => img.id)}>
-                    <div className="image-previews">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full md:w-2/3 lg:w-1/2">
                         {images.map((img) => (
                             <SortableImage
                                 key={img.id}
@@ -202,12 +217,24 @@ const SortableImage: React.FC<SortableImageProps> = ({
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes}>
-            <div {...listeners} style={{ cursor: 'grab' }}>
-                <img src={image.preview} alt="Preview" />
+        <motion.div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            className="p-4 bg-white rounded-lg shadow-md hover:shadow-xl flex flex-col items-center"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+        >
+            <div {...listeners} style={{ cursor: 'grab', width: '100%' }}>
+                <motion.img
+                    src={image.preview}
+                    alt="Preview"
+                    className="rounded-lg w-full h-auto"
+                    whileHover={{ scale: 1.02 }}
+                />
             </div>
-            <div>
-                <label>
+            <div className="w-full mt-4">
+                <label className="block text-sm text-gray-600 mb-2">
                     Width:
                     <input
                         type="number"
@@ -215,9 +242,10 @@ const SortableImage: React.FC<SortableImageProps> = ({
                         onChange={(e) =>
                             onResize(image.id, parseInt(e.target.value, 10), image.height)
                         }
+                        className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                 </label>
-                <label>
+                <label className="block text-sm text-gray-600 mb-2">
                     Height:
                     <input
                         type="number"
@@ -225,12 +253,24 @@ const SortableImage: React.FC<SortableImageProps> = ({
                         onChange={(e) =>
                             onResize(image.id, image.width, parseInt(e.target.value, 10))
                         }
+                        className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     />
                 </label>
-                <button onClick={() => onDelete(image.id)}>Delete</button>
-                <label>
+                <motion.button
+                    onClick={() => onDelete(image.id)}
+                    className="w-full mb-2 px-4 py-2 bg-red-500 text-white rounded-md shadow hover:bg-red-400 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-75"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    Delete
+                </motion.button>
+                <label className="block text-sm text-gray-600 mb-2">
                     Convert to:
-                    <select id={`format-select-${image.id}`} defaultValue="webp">
+                    <select
+                        id={`format-select-${image.id}`}
+                        defaultValue="webp"
+                        className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    >
                         <option value="webp">WebP</option>
                         <option value="png">PNG</option>
                         <option value="jpeg">JPEG</option>
@@ -239,9 +279,16 @@ const SortableImage: React.FC<SortableImageProps> = ({
                         <option value="tiff">TIFF</option>
                     </select>
                 </label>
-                <button onClick={handleDownloadClick}>Download</button>
+                <motion.button
+                    onClick={handleDownloadClick}
+                    className="w-full px-4 py-2 bg-green-500 text-white rounded-md shadow hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-75"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    Download
+                </motion.button>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
