@@ -15,8 +15,7 @@ safe_pic_convert is a web application that allows users to securely convert imag
 
 # sitemap 확인
 
-https://imgconv.ludgi.ai/sitemap.xml
-sitemap 파싱이 안되는 현상이 있음 원인 파악하기.
+- ref: https://imgconv.ludgi.ai/sitemap.xml
 
 ## Key Features
 
